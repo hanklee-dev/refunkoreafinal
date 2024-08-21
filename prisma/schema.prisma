@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String         @id @default(cuid())
+  phoneNumber       String         @unique
+  password          String
+  name              String?
+  email             String?        @unique
+  role              Role           @default(USER)
+  appleId           String?
+  applePassword     String?
+  googleId          String?
+  googlePassword    String?
+  refundStoreChoice String?
+  birthday          DateTime?
+  paymentDevice     String?
+  paymentWay        String?
+  refundHistory     String?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  refundRequests    RefundRequest[]
+}
+
+model RefundRequest {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  storeType   StoreType
+  amount      Float
+  reason      String
+  status      RefundStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum StoreType {
+  GOOGLE_PLAY
+  APP_STORE
+}
+
+enum RefundStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
